@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * 数据包，一些操作数据库的类
  */
 package org.apache.ibatis.jdbc;

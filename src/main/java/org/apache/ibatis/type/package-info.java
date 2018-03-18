@@ -15,5 +15,6 @@
  */
 /**
  * Type handlers.
+ * 类型包,涉及到类型操作转化.
  */
 package org.apache.ibatis.type;

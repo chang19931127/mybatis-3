@@ -15,5 +15,7 @@
  */
 /**
  * Base package for caching stuff
+ * 缓存包,缓存一些查询把
+ * 数据库查询出来某些操作，可以将其缓存起来
  */
 package org.apache.ibatis.cache;

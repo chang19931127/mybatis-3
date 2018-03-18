@@ -15,5 +15,6 @@
  */
 /**
  * Base package for cursor feature
+ * 光标包,用来放一些光标操作的类
  */
 package org.apache.ibatis.cursor;

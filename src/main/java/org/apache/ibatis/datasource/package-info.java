@@ -15,5 +15,6 @@
  */
 /**
  * Base package for Datasources
+ * 数据源包,用来进行一些数据源的控制
  */
 package org.apache.ibatis.datasource;

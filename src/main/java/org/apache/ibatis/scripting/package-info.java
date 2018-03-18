@@ -15,5 +15,6 @@
  */
 /**
  * Base package for languages.
+ * 脚本包,关于一些语言的操作
  */
 package org.apache.ibatis.scripting;

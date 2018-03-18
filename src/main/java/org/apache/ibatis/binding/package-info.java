@@ -15,5 +15,7 @@
  */
 /**
  * Bings mapper interfaces with mapped statements
+ * 绑定包,接口语句绑定包
+ * 提供映射接口和映射语句的绑定
  */
 package org.apache.ibatis.binding;

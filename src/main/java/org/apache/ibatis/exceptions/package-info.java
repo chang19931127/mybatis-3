@@ -15,5 +15,6 @@
  */
 /**
  * Base package for exceptions.
+ * 异常包,自定义异常
  */
 package org.apache.ibatis.exceptions;

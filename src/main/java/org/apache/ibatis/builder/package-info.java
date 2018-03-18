@@ -15,5 +15,7 @@
  */
 /**
  * Base package for the Configuration building code
+ * 建造包,接口生成语句包
+ * 构造包,下面的类提供将注解修饰的接口或者xml映射的接口进行解析生成代理类。
  */
 package org.apache.ibatis.builder;

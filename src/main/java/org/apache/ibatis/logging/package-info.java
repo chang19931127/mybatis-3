@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * 日志包,将操作以日志的形式存储
  */
 package org.apache.ibatis.logging;

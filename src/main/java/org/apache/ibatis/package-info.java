@@ -15,5 +15,10 @@
  */
 /**
  * The MyBatis data mapper framework makes it easier to use a relational database with object-oriented applications.
+ * mybatis基础目录,通过包名可以了解到mybatis是由ibatis演进过来的
+ *
+ * 大概了解下mybatis的操作把
+ * 1. 面向接口,接口既是我们的dao层
+ *      那就需要接口代理生成sql语句以及相关的操作  接口和sql语句的绑定，binding包下
  */
 package org.apache.ibatis;

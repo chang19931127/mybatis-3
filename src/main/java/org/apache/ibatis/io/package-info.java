@@ -15,5 +15,6 @@
  */
 /**
  * Utilities to read resources.
+ * 资源包,对一些资源进行管理
  */
 package org.apache.ibatis.io;

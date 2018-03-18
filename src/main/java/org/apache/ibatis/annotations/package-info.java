@@ -15,6 +15,8 @@
  */
 /**
  * Contains all the annotation that are used in mapper interfaces
+ * 注解包,修饰接口的注解
+ * 这里面包含了很多注解,用来替代xml进行使用的,这些注解大部分用于接口中,方便生成需要的代理类
  */
 package org.apache.ibatis.annotations;
 

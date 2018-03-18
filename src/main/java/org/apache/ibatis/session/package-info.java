@@ -15,5 +15,6 @@
  */
 /**
  * Base package. Contains the SqlSession.
+ * 回话包,连接就有回话,回话管理的操作类
  */
 package org.apache.ibatis.session;
