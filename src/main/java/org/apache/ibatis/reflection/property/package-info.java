@@ -15,5 +15,9 @@
  */
 /**
  * Tools for getting/setting properties
+ * 该包下可能就是针对属性进行操作的类
+ * 通过方法获得属性名
+ * 通过类型找到属性然后copy
+ * 解析x.y.z or x[1].y.z
  */
 package org.apache.ibatis.reflection.property;

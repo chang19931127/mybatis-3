@@ -15,5 +15,6 @@
  */
 /**
  * Object factory.
+ * 对象创造工厂包
  */
 package org.apache.ibatis.reflection.factory;

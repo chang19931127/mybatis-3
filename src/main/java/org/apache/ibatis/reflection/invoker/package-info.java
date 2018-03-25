@@ -15,5 +15,6 @@
  */
 /**
  * Unused.
+ * 执行器操作
  */
 package org.apache.ibatis.reflection.invoker;

@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 /**
  * <p>
  * Indicates that the element uses Java 8 API.
+ * 注释到那段代码,那段代码使用的API版本 8
  * </p>
  */
 @Documented
