@@ -17,5 +17,7 @@
  * Base package for exceptions.
  * 异常包,自定义异常
  * 自定义异常,里面有一个简单工厂模式
+ * 走RuntimeException     基本上RuntimeException就是程序发生的错误我们无法解决
+ *                      checkedException我们可以catch然后解决异常 例如 网络连接重试 等等
  */
 package org.apache.ibatis.exceptions;
