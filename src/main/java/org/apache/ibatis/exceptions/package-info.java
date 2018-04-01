@@ -16,5 +16,6 @@
 /**
  * Base package for exceptions.
  * 异常包,自定义异常
+ * 自定义异常,里面有一个简单工厂模式
  */
 package org.apache.ibatis.exceptions;
