@@ -15,5 +15,7 @@
  */
 /**
  * Contains the default cache implementation
+ * Cache 的默认实现方式
+ * 一个最简单,就仅仅封装了HashMap的api
  */
 package org.apache.ibatis.cache.impl;

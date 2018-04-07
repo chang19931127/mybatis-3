@@ -16,6 +16,13 @@
 /**
  * Base package for caching stuff
  * 缓存包,缓存一些查询把
- * 数据库查询出来某些操作，可以将其缓存起来
+ * 数据库查询出来某些操作，可以将其缓存起来,暂时想这么理解
+ * 缓存实例,然后可以get put remove 等操作
+ *
+ * CacheKey 缓存ArrayList  这样这个key很丰富
+ * Cache 缓存对象
+ * TransactionalCache    增加了事务能力
+ *
+ * 最终都被TransactionalCacheManager进行管理
  */
 package org.apache.ibatis.cache;

@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.cache.decorators;
 
@@ -23,68 +23,87 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * FIFO (first in, first out) cache decorator
+ * FIFO 大学学习的知识还有印象么先进先出队列哈哈内存置换.
+ * 来看看怎么实现
  *
  * @author Clinton Begin
  */
 public class FifoCache implements Cache {
 
-  private final Cache delegate;
-  private final Deque<Object> keyList;
-  private int size;
+	/**
+	 * 装饰缓存对象
+	 */
+	private final Cache delegate;
+	/**
+	 * 一个双端队列,个人理解通过双端队列来对key进行管理把
+	 */
+	private final Deque<Object> keyList;
+	/**
+	 * size用来设置缓存中key的个数,因为不能无限缓存啊
+	 */
+	private int size;
 
-  public FifoCache(Cache delegate) {
-    this.delegate = delegate;
-    this.keyList = new LinkedList<Object>();
-    this.size = 1024;
-  }
+	public FifoCache(Cache delegate) {
+		this.delegate = delegate;
+		// 默认构造一个LinkedList
+		this.keyList = new LinkedList<Object>();
+		this.size = 1024;
+	}
 
-  @Override
-  public String getId() {
-    return delegate.getId();
-  }
+	@Override
+	public String getId() {
+		return delegate.getId();
+	}
 
-  @Override
-  public int getSize() {
-    return delegate.getSize();
-  }
+	@Override
+	public int getSize() {
+		return delegate.getSize();
+	}
 
-  public void setSize(int size) {
-    this.size = size;
-  }
+	public void setSize(int size) {
+		this.size = size;
+	}
 
-  @Override
-  public void putObject(Object key, Object value) {
-    cycleKeyList(key);
-    delegate.putObject(key, value);
-  }
+	@Override
+	public void putObject(Object key, Object value) {
+		cycleKeyList(key);
+		delegate.putObject(key, value);
+	}
 
-  @Override
-  public Object getObject(Object key) {
-    return delegate.getObject(key);
-  }
+	@Override
+	public Object getObject(Object key) {
+		return delegate.getObject(key);
+	}
 
-  @Override
-  public Object removeObject(Object key) {
-    return delegate.removeObject(key);
-  }
+	@Override
+	public Object removeObject(Object key) {
+		return delegate.removeObject(key);
+	}
 
-  @Override
-  public void clear() {
-    delegate.clear();
-    keyList.clear();
-  }
+	@Override
+	public void clear() {
+		delegate.clear();
+		keyList.clear();
+	}
 
-  @Override
-  public ReadWriteLock getReadWriteLock() {
-    return null;
-  }
+	@Override
+	public ReadWriteLock getReadWriteLock() {
+		return null;
+	}
 
-  private void cycleKeyList(Object key) {
-    keyList.addLast(key);
-    if (keyList.size() > size) {
-      Object oldestKey = keyList.removeFirst();
-      delegate.removeObject(oldestKey);
-    }
-  }
+	/**
+	 * 重要的方法来控制FIFO的缓存逻辑
+	 * @param key
+	 */
+	private void cycleKeyList(Object key) {
+		// 先把这个key添进来
+		keyList.addLast(key);
+		// 判断是否超出容量
+		if (keyList.size() > size) {
+			// 根据先进先出来移除最早进来的key,通过LinkedList的removeFirst操作
+			Object oldestKey = keyList.removeFirst();
+			delegate.removeObject(oldestKey);
+		}
+	}
 
 }

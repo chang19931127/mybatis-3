@@ -16,5 +16,9 @@
 /**
  * Base package for cursor feature
  * 光标包,用来放一些光标操作的类
+ * 游标,针对查询结果可以通过游标
+ *
+ *      mybatis提供的游标应该是对大数据量的结果集的遍历,以游标的方式拉去数据
+ *      Cursor和DefaultCursor了和cursorIterator了
  */
 package org.apache.ibatis.cursor;

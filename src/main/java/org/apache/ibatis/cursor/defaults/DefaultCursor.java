@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.cursor.defaults;
 
@@ -34,188 +34,208 @@ import java.util.NoSuchElementException;
  * This implementation is not thread safe.
  *
  * @author Guillaume Darmont / guillaume@dropinocean.com
+ * 就是拉去大量数据,但是通过游标的方式,这样去遍历操作
+ * 返回的结果集就是Cursor 包装结果到泛型
+ *
+ * 这四个东西对于数据库返回结果到java对象很重要,回来再看
+ * 游标移动的是结果集
+ * 1.结果集处理Handler
+ * 2.结果集映射
+ * 3.结果集条目
+ * 4.结果处理
+ *
  */
 public class DefaultCursor<T> implements Cursor<T> {
 
-    // ResultSetHandler stuff
-    private final DefaultResultSetHandler resultSetHandler;
-    private final ResultMap resultMap;
-    private final ResultSetWrapper rsw;
-    private final RowBounds rowBounds;
-    private final ObjectWrapperResultHandler<T> objectWrapperResultHandler = new ObjectWrapperResultHandler<T>();
+	// ResultSetHandler stuff
 
-    private final CursorIterator cursorIterator = new CursorIterator();
-    private boolean iteratorRetrieved;
+	private final DefaultResultSetHandler resultSetHandler;
+	private final ResultMap resultMap;
+	private final ResultSetWrapper rsw;
+	private final RowBounds rowBounds;
+	private final ObjectWrapperResultHandler<T> objectWrapperResultHandler = new ObjectWrapperResultHandler<T>();
 
-    private CursorStatus status = CursorStatus.CREATED;
-    private int indexWithRowBound = -1;
+	private final CursorIterator cursorIterator = new CursorIterator();
+	private boolean iteratorRetrieved;
 
-    private enum CursorStatus {
+	private CursorStatus status = CursorStatus.CREATED;
+	private int indexWithRowBound = -1;
 
-        /**
-         * A freshly created cursor, database ResultSet consuming has not started
-         */
-        CREATED,
-        /**
-         * A cursor currently in use, database ResultSet consuming has started
-         */
-        OPEN,
-        /**
-         * A closed cursor, not fully consumed
-         */
-        CLOSED,
-        /**
-         * A fully consumed cursor, a consumed cursor is always closed
-         */
-        CONSUMED
-    }
+	/**
+	 * 游标内部枚举状态
+	 */
+	private enum CursorStatus {
 
-    public DefaultCursor(DefaultResultSetHandler resultSetHandler, ResultMap resultMap, ResultSetWrapper rsw, RowBounds rowBounds) {
-        this.resultSetHandler = resultSetHandler;
-        this.resultMap = resultMap;
-        this.rsw = rsw;
-        this.rowBounds = rowBounds;
-    }
+		/**
+		 * A freshly created cursor, database ResultSet consuming has not started
+		 * 游标创建,但并没有拉去
+		 */
+		CREATED,
+		/**
+		 * A cursor currently in use, database ResultSet consuming has started
+		 * 游标已经开始使用
+		 */
+		OPEN,
+		/**
+		 * A closed cursor, not fully consumed
+		 * 游标关闭
+		 *
+		 */
+		CLOSED,
+		/**
+		 * A fully consumed cursor, a consumed cursor is always closed
+		 * 游标被全部消费
+		 */
+		CONSUMED
+	}
 
-    @Override
-    public boolean isOpen() {
-        return status == CursorStatus.OPEN;
-    }
+	public DefaultCursor(DefaultResultSetHandler resultSetHandler, ResultMap resultMap, ResultSetWrapper rsw, RowBounds rowBounds) {
+		this.resultSetHandler = resultSetHandler;
+		this.resultMap = resultMap;
+		this.rsw = rsw;
+		this.rowBounds = rowBounds;
+	}
 
-    @Override
-    public boolean isConsumed() {
-        return status == CursorStatus.CONSUMED;
-    }
+	@Override
+	public boolean isOpen() {
+		return status == CursorStatus.OPEN;
+	}
 
-    @Override
-    public int getCurrentIndex() {
-        return rowBounds.getOffset() + cursorIterator.iteratorIndex;
-    }
+	@Override
+	public boolean isConsumed() {
+		return status == CursorStatus.CONSUMED;
+	}
 
-    @Override
-    public Iterator<T> iterator() {
-        if (iteratorRetrieved) {
-            throw new IllegalStateException("Cannot open more than one iterator on a Cursor");
-        }
-        iteratorRetrieved = true;
-        return cursorIterator;
-    }
+	@Override
+	public int getCurrentIndex() {
+		return rowBounds.getOffset() + cursorIterator.iteratorIndex;
+	}
 
-    @Override
-    public void close() {
-        if (isClosed()) {
-            return;
-        }
+	@Override
+	public Iterator<T> iterator() {
+		if (iteratorRetrieved) {
+			throw new IllegalStateException("Cannot open more than one iterator on a Cursor");
+		}
+		iteratorRetrieved = true;
+		return cursorIterator;
+	}
 
-        ResultSet rs = rsw.getResultSet();
-        try {
-            if (rs != null) {
-                Statement statement = rs.getStatement();
+	@Override
+	public void close() {
+		if (isClosed()) {
+			return;
+		}
 
-                rs.close();
-                if (statement != null) {
-                    statement.close();
-                }
-            }
-            status = CursorStatus.CLOSED;
-        } catch (SQLException e) {
-            // ignore
-        }
-    }
+		ResultSet rs = rsw.getResultSet();
+		try {
+			if (rs != null) {
+				Statement statement = rs.getStatement();
 
-    protected T fetchNextUsingRowBound() {
-        T result = fetchNextObjectFromDatabase();
-        while (result != null && indexWithRowBound < rowBounds.getOffset()) {
-            result = fetchNextObjectFromDatabase();
-        }
-        return result;
-    }
+				rs.close();
+				if (statement != null) {
+					statement.close();
+				}
+			}
+			status = CursorStatus.CLOSED;
+		} catch (SQLException e) {
+			// ignore
+		}
+	}
 
-    protected T fetchNextObjectFromDatabase() {
-        if (isClosed()) {
-            return null;
-        }
+	protected T fetchNextUsingRowBound() {
+		T result = fetchNextObjectFromDatabase();
+		while (result != null && indexWithRowBound < rowBounds.getOffset()) {
+			result = fetchNextObjectFromDatabase();
+		}
+		return result;
+	}
 
-        try {
-            status = CursorStatus.OPEN;
-            resultSetHandler.handleRowValues(rsw, resultMap, objectWrapperResultHandler, RowBounds.DEFAULT, null);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+	protected T fetchNextObjectFromDatabase() {
+		if (isClosed()) {
+			return null;
+		}
 
-        T next = objectWrapperResultHandler.result;
-        if (next != null) {
-            indexWithRowBound++;
-        }
-        // No more object or limit reached
-        if (next == null || getReadItemsCount() == rowBounds.getOffset() + rowBounds.getLimit()) {
-            close();
-            status = CursorStatus.CONSUMED;
-        }
-        objectWrapperResultHandler.result = null;
+		try {
+			status = CursorStatus.OPEN;
+			resultSetHandler.handleRowValues(rsw, resultMap, objectWrapperResultHandler, RowBounds.DEFAULT, null);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 
-        return next;
-    }
+		T next = objectWrapperResultHandler.result;
+		if (next != null) {
+			indexWithRowBound++;
+		}
+		// No more object or limit reached
+		if (next == null || getReadItemsCount() == rowBounds.getOffset() + rowBounds.getLimit()) {
+			close();
+			status = CursorStatus.CONSUMED;
+		}
+		objectWrapperResultHandler.result = null;
 
-    private boolean isClosed() {
-        return status == CursorStatus.CLOSED || status == CursorStatus.CONSUMED;
-    }
+		return next;
+	}
 
-    private int getReadItemsCount() {
-        return indexWithRowBound + 1;
-    }
+	private boolean isClosed() {
+		return status == CursorStatus.CLOSED || status == CursorStatus.CONSUMED;
+	}
 
-    private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {
+	private int getReadItemsCount() {
+		return indexWithRowBound + 1;
+	}
 
-        private T result;
+	private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {
 
-        @Override
-        public void handleResult(ResultContext<? extends T> context) {
-            this.result = context.getResultObject();
-            context.stop();
-        }
-    }
+		private T result;
 
-    private class CursorIterator implements Iterator<T> {
+		@Override
+		public void handleResult(ResultContext<? extends T> context) {
+			this.result = context.getResultObject();
+			context.stop();
+		}
+	}
 
-        /**
-         * Holder for the next object to be returned
-         */
-        T object;
+	private class CursorIterator implements Iterator<T> {
 
-        /**
-         * Index of objects returned using next(), and as such, visible to users.
-         */
-        int iteratorIndex = -1;
+		/**
+		 * Holder for the next object to be returned
+		 */
+		T object;
 
-        @Override
-        public boolean hasNext() {
-            if (object == null) {
-                object = fetchNextUsingRowBound();
-            }
-            return object != null;
-        }
+		/**
+		 * Index of objects returned using next(), and as such, visible to users.
+		 */
+		int iteratorIndex = -1;
 
-        @Override
-        public T next() {
-            // Fill next with object fetched from hasNext()
-            T next = object;
+		@Override
+		public boolean hasNext() {
+			if (object == null) {
+				//是否有下一个
+				object = fetchNextUsingRowBound();
+			}
+			return object != null;
+		}
 
-            if (next == null) {
-                next = fetchNextUsingRowBound();
-            }
+		@Override
+		public T next() {
+			// Fill next with object fetched from hasNext()
+			T next = object;
 
-            if (next != null) {
-                object = null;
-                iteratorIndex++;
-                return next;
-            }
-            throw new NoSuchElementException();
-        }
+			if (next == null) {
+				next = fetchNextUsingRowBound();
+			}
 
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Cannot remove element from Cursor");
-        }
-    }
+			if (next != null) {
+				object = null;
+				iteratorIndex++;
+				return next;
+			}
+			throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("Cannot remove element from Cursor");
+		}
+	}
 }
