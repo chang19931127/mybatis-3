@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * 标准输出流封装
  */
 package org.apache.ibatis.logging.stdout;

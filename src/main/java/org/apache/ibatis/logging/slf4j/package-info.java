@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * 封装Slf4j的日志实现类
  */
 package org.apache.ibatis.logging.slf4j;

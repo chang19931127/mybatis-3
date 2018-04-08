@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * jdk 提供的日志包封装
  */
 package org.apache.ibatis.logging.jdk14;

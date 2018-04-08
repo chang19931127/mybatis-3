@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * apache common log 封装类
  */
 package org.apache.ibatis.logging.commons;

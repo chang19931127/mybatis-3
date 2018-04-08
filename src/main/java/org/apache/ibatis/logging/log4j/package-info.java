@@ -15,5 +15,6 @@
  */
 /**
  * TODO fillme.
+ * log4j封装类
  */
 package org.apache.ibatis.logging.log4j;
