@@ -16,5 +16,6 @@
 /**
  * Type handlers.
  * 类型包,涉及到类型操作转化.
+ * 这里主要就是  通过数据库通过jdbc转化到java然后mybatis通过jdbc转化的java在转化成自己想要的
  */
 package org.apache.ibatis.type;

@@ -16,5 +16,10 @@
 /**
  * TODO fillme.
  * 数据包，一些操作数据库的类
+ * 直接和jdbc接触的把通过xml或者鞋扣生成sql语句啊
+ * 这里就包含了所有的sql语句.也就是mybatis最终走到的地方
+ *
+ * 四大 INSERT DELETE UPDATE SELECT
+ * AbstractSQL 基本SQL语句都在这里有体现
  */
 package org.apache.ibatis.jdbc;

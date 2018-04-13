@@ -99,6 +99,11 @@ public final class LogFactory {
 		}
 	}
 
+	/**
+	 * 可以通过程序调用这个方法,然后这个类才开始,但是logConstructor已经有值了
+	 * <setting name="logImpl" value="LOG4J"/>   就是直接调用这个方法
+	 * @param clazz
+	 */
 	public static synchronized void useCustomLogging(Class<? extends Log> clazz) {
 		setImplementation(clazz);
 	}
