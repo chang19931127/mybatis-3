@@ -15,5 +15,6 @@
  */
 /**
  * JDBC transaction.
+ * jdbc 事务
  */
 package org.apache.ibatis.transaction.jdbc;

@@ -15,5 +15,6 @@
  */
 /**
  * External transaction.
+ * 外部事务
  */
 package org.apache.ibatis.transaction.managed;
