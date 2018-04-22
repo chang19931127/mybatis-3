@@ -15,5 +15,6 @@
  */
 /**
  * Hyper-simple Datasource.
+ * 很简单那的数据源   没有使用数据库连接池
  */
 package org.apache.ibatis.datasource.unpooled;
