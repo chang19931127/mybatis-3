@@ -17,5 +17,6 @@
  * Bings mapper interfaces with mapped statements
  * 绑定包,接口语句绑定包
  * 提供映射接口和映射语句的绑定
+ * Mybatis通过 这个包下的 jdbc 动态代理类来 将接口映射到sql 然后执行sql操作
  */
 package org.apache.ibatis.binding;
