@@ -17,6 +17,12 @@
  * Contains all the annotation that are used in mapper interfaces
  * 注解包,修饰接口的注解
  * 这里面包含了很多注解,用来替代xml进行使用的,这些注解大部分用于接口中,方便生成需要的代理类
+ *
+ * Delete,Insert,Select,Update                                  这四个注解直接拼 sql
+ * DeleteProvide,InsertProvide,SelectProvide,SelectProvide      这四个注解通过 类.方法   返回String 来辅助拼sql
+ *
+ * http://www.mybatis.org/mybatis-3/java-api.html
+ * 官方文档来帮助你把,哈哈
  */
 package org.apache.ibatis.annotations;
 

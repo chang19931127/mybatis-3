@@ -15,5 +15,8 @@
  */
 /**
  * Parses annotions to create a Configuration
+ * 通过注解来进行配置操作。
+ * Mybatis 可以实现 全注解式操作。
+ * 但是一定要有入口 扫包的
  */
 package org.apache.ibatis.builder.annotation;

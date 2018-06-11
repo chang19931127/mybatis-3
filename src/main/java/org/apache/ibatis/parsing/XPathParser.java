@@ -54,6 +54,9 @@ public class XPathParser {
 	 */
 	private final Document document;
 	private boolean validation;
+	/**
+	 * java SAX 需要的EntityResolver
+	 */
 	private EntityResolver entityResolver;
 	private Properties variables;
 	private XPath xpath;

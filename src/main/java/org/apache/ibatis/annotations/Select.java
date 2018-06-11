@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Clinton Begin
- * 查
+ * java 代码中的 SQL语句
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

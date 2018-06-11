@@ -21,6 +21,10 @@
  * 1. 面向接口,接口既是我们的dao层
  *      那就需要接口代理生成sql语句以及相关的操作  接口和sql语句的绑定，binding包下
  *
+ *
+ *
+ *      https://www.cnblogs.com/pixy/p/5038275.html 这个博客不错
+ *
  * 
  */
 package org.apache.ibatis;

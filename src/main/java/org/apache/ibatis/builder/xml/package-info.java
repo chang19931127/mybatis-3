@@ -15,5 +15,7 @@
  */
 /**
  * Parses XML files to create a Configuration
+ * 解析XML 并且生成Configuration
+ * mybatis 使用的是 dtd 约束啊
  */
 package org.apache.ibatis.builder.xml;

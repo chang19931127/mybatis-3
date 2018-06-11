@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Clinton Begin
- * 删
+ * 删除语句
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

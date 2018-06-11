@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
  * 默认实现
  * 里面通过ConcurrentHashMap来缓存reflector对象
  * 也就是说java内部程序可以通过ConcurrentHashMap来进行程序级别的缓存
+ * 反射性能不高,但是我们缓存了反射的对象,那么反射的性能还会是我们的瓶颈么.
  */
 public class DefaultReflectorFactory implements ReflectorFactory {
 	//可以设置是否开启缓存
