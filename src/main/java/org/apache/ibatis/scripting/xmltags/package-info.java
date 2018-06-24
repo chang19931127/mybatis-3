@@ -15,5 +15,6 @@
  */
 /**
  * Default XML MyBatis language.
+ * 就是解析 一些XML中的语句把
  */
 package org.apache.ibatis.scripting.xmltags;

@@ -16,5 +16,10 @@
 /**
  * Base package for languages.
  * 脚本包,关于一些语言的操作
+ *
+ * 语言脚本包
+ * 主要是xml标签解析 和 一些默认的语句解析
+ * 就是你的 xml 或者 注解 里面有一些特别的语法。就需要这里来解析了
+ * 看引用关系，感觉都是围绕 Lang 这个注解做的文章
  */
 package org.apache.ibatis.scripting;

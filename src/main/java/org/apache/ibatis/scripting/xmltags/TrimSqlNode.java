@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.scripting.xmltags;
 
@@ -26,136 +26,165 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ * Trim Sql 哈哈 Trim 啦
+ * 也就是修建Sql 了 可以拼接一些东西吧 想一下Sql语句
+ * 注意一个小细节，都加一个 空格
  */
 public class TrimSqlNode implements SqlNode {
 
-  private final SqlNode contents;
-  private final String prefix;
-  private final String suffix;
-  private final List<String> prefixesToOverride;
-  private final List<String> suffixesToOverride;
-  private final Configuration configuration;
+	// 一个SqlNode 四个属性 一个配置想
 
-  public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
-    this(configuration, contents, prefix, parseOverrides(prefixesToOverride), suffix, parseOverrides(suffixesToOverride));
-  }
+	private final SqlNode contents;
+	private final String prefix;
+	private final String suffix;
+	private final List<String> prefixesToOverride;
+	private final List<String> suffixesToOverride;
+	private final Configuration configuration;
 
-  protected TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, List<String> prefixesToOverride, String suffix, List<String> suffixesToOverride) {
-    this.contents = contents;
-    this.prefix = prefix;
-    this.prefixesToOverride = prefixesToOverride;
-    this.suffix = suffix;
-    this.suffixesToOverride = suffixesToOverride;
-    this.configuration = configuration;
-  }
+	public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
+		// 解析一次如参？     过滤一次 |
+		this(configuration, contents, prefix, parseOverrides(prefixesToOverride), suffix, parseOverrides(suffixesToOverride));
+	}
 
-  @Override
-  public boolean apply(DynamicContext context) {
-    FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
-    boolean result = contents.apply(filteredDynamicContext);
-    filteredDynamicContext.applyAll();
-    return result;
-  }
+	protected TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, List<String> prefixesToOverride, String suffix, List<String> suffixesToOverride) {
+		this.contents = contents;
+		this.prefix = prefix;
+		this.prefixesToOverride = prefixesToOverride;
+		this.suffix = suffix;
+		this.suffixesToOverride = suffixesToOverride;
+		this.configuration = configuration;
+	}
 
-  private static List<String> parseOverrides(String overrides) {
-    if (overrides != null) {
-      final StringTokenizer parser = new StringTokenizer(overrides, "|", false);
-      final List<String> list = new ArrayList<String>(parser.countTokens());
-      while (parser.hasMoreTokens()) {
-        list.add(parser.nextToken().toUpperCase(Locale.ENGLISH));
-      }
-      return list;
-    }
-    return Collections.emptyList();
-  }
+	@Override
+	public boolean apply(DynamicContext context) {
+		// 主要这个方法了
+		FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
+		boolean result = contents.apply(filteredDynamicContext);
+		filteredDynamicContext.applyAll();
+		return result;
+	}
 
-  private class FilteredDynamicContext extends DynamicContext {
-    private DynamicContext delegate;
-    private boolean prefixApplied;
-    private boolean suffixApplied;
-    private StringBuilder sqlBuffer;
+	/**
+	 * 解析Overrides
+	 * @param overrides
+	 * @return
+	 */
+	private static List<String> parseOverrides(String overrides) {
+		// 只要不是null
+		if (overrides != null) {
+			final StringTokenizer parser = new StringTokenizer(overrides, "|", false);
+			final List<String> list = new ArrayList<String>(parser.countTokens());
+			while (parser.hasMoreTokens()) {
+				list.add(parser.nextToken().toUpperCase(Locale.ENGLISH));
+			}
+			// 过滤掉 |
+			return list;
+		}
+		// 集合返回 emptyList 哈哈
+		return Collections.emptyList();
+	}
 
-    public FilteredDynamicContext(DynamicContext delegate) {
-      super(configuration, null);
-      this.delegate = delegate;
-      this.prefixApplied = false;
-      this.suffixApplied = false;
-      this.sqlBuffer = new StringBuilder();
-    }
+	/**
+	 * 内部类了    过滤动态上线文
+	 */
+	private class FilteredDynamicContext extends DynamicContext {
+		private DynamicContext delegate;
+		private boolean prefixApplied;
+		private boolean suffixApplied;
+		private StringBuilder sqlBuffer;
 
-    public void applyAll() {
-      sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
-      String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
-      if (trimmedUppercaseSql.length() > 0) {
-        applyPrefix(sqlBuffer, trimmedUppercaseSql);
-        applySuffix(sqlBuffer, trimmedUppercaseSql);
-      }
-      delegate.appendSql(sqlBuffer.toString());
-    }
+		public FilteredDynamicContext(DynamicContext delegate) {
+			super(configuration, null);
+			this.delegate = delegate;
+			this.prefixApplied = false;
+			this.suffixApplied = false;
+			this.sqlBuffer = new StringBuilder();
+		}
 
-    @Override
-    public Map<String, Object> getBindings() {
-      return delegate.getBindings();
-    }
+		public void applyAll() {
+			// 全部应用
+			sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
+			String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
+			if (trimmedUppercaseSql.length() > 0) {
+				applyPrefix(sqlBuffer, trimmedUppercaseSql);
+				applySuffix(sqlBuffer, trimmedUppercaseSql);
+			}
+			delegate.appendSql(sqlBuffer.toString());
+		}
 
-    @Override
-    public void bind(String name, Object value) {
-      delegate.bind(name, value);
-    }
+		@Override
+		public Map<String, Object> getBindings() {
+			return delegate.getBindings();
+		}
 
-    @Override
-    public int getUniqueNumber() {
-      return delegate.getUniqueNumber();
-    }
+		@Override
+		public void bind(String name, Object value) {
+			delegate.bind(name, value);
+		}
 
-    @Override
-    public void appendSql(String sql) {
-      sqlBuffer.append(sql);
-    }
+		@Override
+		public int getUniqueNumber() {
+			return delegate.getUniqueNumber();
+		}
 
-    @Override
-    public String getSql() {
-      return delegate.getSql();
-    }
+		@Override
+		public void appendSql(String sql) {
+			sqlBuffer.append(sql);
+		}
 
-    private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
-      if (!prefixApplied) {
-        prefixApplied = true;
-        if (prefixesToOverride != null) {
-          for (String toRemove : prefixesToOverride) {
-            if (trimmedUppercaseSql.startsWith(toRemove)) {
-              sql.delete(0, toRemove.trim().length());
-              break;
-            }
-          }
-        }
-        if (prefix != null) {
-          sql.insert(0, " ");
-          sql.insert(0, prefix);
-        }
-      }
-    }
+		@Override
+		public String getSql() {
+			return delegate.getSql();
+		}
 
-    private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
-      if (!suffixApplied) {
-        suffixApplied = true;
-        if (suffixesToOverride != null) {
-          for (String toRemove : suffixesToOverride) {
-            if (trimmedUppercaseSql.endsWith(toRemove) || trimmedUppercaseSql.endsWith(toRemove.trim())) {
-              int start = sql.length() - toRemove.trim().length();
-              int end = sql.length();
-              sql.delete(start, end);
-              break;
-            }
-          }
-        }
-        if (suffix != null) {
-          sql.append(" ");
-          sql.append(suffix);
-        }
-      }
-    }
+		/**
+		 * 应用前缀
+		 * @param sql
+		 * @param trimmedUppercaseSql
+		 */
+		private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
+			if (!prefixApplied) {
+				prefixApplied = true;
+				if (prefixesToOverride != null) {
+					for (String toRemove : prefixesToOverride) {
+						if (trimmedUppercaseSql.startsWith(toRemove)) {
+							sql.delete(0, toRemove.trim().length());
+							break;
+						}
+					}
+				}
+				if (prefix != null) {
+					sql.insert(0, " ");
+					sql.insert(0, prefix);
+				}
+			}
+		}
 
-  }
+		/**
+		 * 应用 后缀
+		 * @param sql
+		 * @param trimmedUppercaseSql
+		 */
+		private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
+			if (!suffixApplied) {
+				suffixApplied = true;
+				if (suffixesToOverride != null) {
+					for (String toRemove : suffixesToOverride) {
+						if (trimmedUppercaseSql.endsWith(toRemove) || trimmedUppercaseSql.endsWith(toRemove.trim())) {
+							int start = sql.length() - toRemove.trim().length();
+							int end = sql.length();
+							sql.delete(start, end);
+							break;
+						}
+					}
+				}
+				if (suffix != null) {
+					sql.append(" ");
+					sql.append(suffix);
+				}
+			}
+		}
+
+	}
 
 }

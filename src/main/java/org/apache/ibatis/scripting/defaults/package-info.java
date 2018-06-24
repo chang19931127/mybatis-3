@@ -15,5 +15,6 @@
  */
 /**
  * Default beans for languages.
+ * 默认的
  */
 package org.apache.ibatis.scripting.defaults;
