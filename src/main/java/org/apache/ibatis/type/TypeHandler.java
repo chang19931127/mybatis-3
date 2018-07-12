@@ -23,6 +23,7 @@ import java.sql.SQLException;
 /**
  * @author Clinton Begin
  * 类型处理泛型接口
+ * 主要是为了 PreparedStatement 进行准备的
  */
 public interface TypeHandler<T> {
 

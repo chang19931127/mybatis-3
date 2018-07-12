@@ -16,6 +16,6 @@
 /**
  * TODO fillme.
  * 映射包,用来进行java类和概念的映射
- *
+ * 这个包里面主要就是整一些映射 辅助一些操作
  */
 package org.apache.ibatis.mapping;
