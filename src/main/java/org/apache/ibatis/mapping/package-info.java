@@ -17,5 +17,11 @@
  * TODO fillme.
  * 映射包,用来进行java类和概念的映射
  * 这个包里面主要就是整一些映射 辅助一些操作
+ * 参数封装类 id 参数类型 参数属性的映射
+ * 返回值封装类 id 返回值类型 返回值属性的映射
+ *
+ * 这个包中大量的建造者模式
+ *
+ * MappedStatement 核心类
  */
 package org.apache.ibatis.mapping;

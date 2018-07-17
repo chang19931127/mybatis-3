@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.mapping;
 
@@ -35,232 +35,288 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ * ResultMap 结果集类型的封装类
  */
 public class ResultMap {
-  private Configuration configuration;
+	/**
+	 * 配置
+	 */
+	private Configuration configuration;
 
-  private String id;
-  private Class<?> type;
-  private List<ResultMapping> resultMappings;
-  private List<ResultMapping> idResultMappings;
-  private List<ResultMapping> constructorResultMappings;
-  private List<ResultMapping> propertyResultMappings;
-  private Set<String> mappedColumns;
-  private Set<String> mappedProperties;
-  private Discriminator discriminator;
-  private boolean hasNestedResultMaps;
-  private boolean hasNestedQueries;
-  private Boolean autoMapping;
+	/**
+	 * 结果集对应的id
+	 */
+	private String id;
 
-  private ResultMap() {
-  }
+	/**
+	 * 对应的java类型
+	 */
+	private Class<?> type;
 
-  public static class Builder {
-    private static final Log log = LogFactory.getLog(Builder.class);
+	/**
+	 * 结果集对应的 resultMapping
+	 */
+	private List<ResultMapping> resultMappings;
 
-    private ResultMap resultMap = new ResultMap();
+	/**
+	 * 其他的 resultMapping id 嵌套的
+	 */
+	private List<ResultMapping> idResultMappings;
 
-    public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings) {
-      this(configuration, id, type, resultMappings, null);
-    }
+	/**
+	 * 其他的 resultMapping 构造器 嵌套的
+	 */
+	private List<ResultMapping> constructorResultMappings;
 
-    public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings, Boolean autoMapping) {
-      resultMap.configuration = configuration;
-      resultMap.id = id;
-      resultMap.type = type;
-      resultMap.resultMappings = resultMappings;
-      resultMap.autoMapping = autoMapping;
-    }
+	/**
+	 * 属性的
+	 */
+	private List<ResultMapping> propertyResultMappings;
 
-    public Builder discriminator(Discriminator discriminator) {
-      resultMap.discriminator = discriminator;
-      return this;
-    }
+	/**
+	 * 映射的 列名
+	 */
+	private Set<String> mappedColumns;
 
-    public Class<?> type() {
-      return resultMap.type;
-    }
+	/**
+	 * 映射的属性
+	 */
+	private Set<String> mappedProperties;
 
-    public ResultMap build() {
-      if (resultMap.id == null) {
-        throw new IllegalArgumentException("ResultMaps must have an id");
-      }
-      resultMap.mappedColumns = new HashSet<String>();
-      resultMap.mappedProperties = new HashSet<String>();
-      resultMap.idResultMappings = new ArrayList<ResultMapping>();
-      resultMap.constructorResultMappings = new ArrayList<ResultMapping>();
-      resultMap.propertyResultMappings = new ArrayList<ResultMapping>();
-      final List<String> constructorArgNames = new ArrayList<String>();
-      for (ResultMapping resultMapping : resultMap.resultMappings) {
-        resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
-        resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);
-        final String column = resultMapping.getColumn();
-        if (column != null) {
-          resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
-        } else if (resultMapping.isCompositeResult()) {
-          for (ResultMapping compositeResultMapping : resultMapping.getComposites()) {
-            final String compositeColumn = compositeResultMapping.getColumn();
-            if (compositeColumn != null) {
-              resultMap.mappedColumns.add(compositeColumn.toUpperCase(Locale.ENGLISH));
-            }
-          }
-        }
-        final String property = resultMapping.getProperty();
-        if(property != null) {
-          resultMap.mappedProperties.add(property);
-        }
-        if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
-          resultMap.constructorResultMappings.add(resultMapping);
-          if (resultMapping.getProperty() != null) {
-            constructorArgNames.add(resultMapping.getProperty());
-          }
-        } else {
-          resultMap.propertyResultMappings.add(resultMapping);
-        }
-        if (resultMapping.getFlags().contains(ResultFlag.ID)) {
-          resultMap.idResultMappings.add(resultMapping);
-        }
-      }
-      if (resultMap.idResultMappings.isEmpty()) {
-        resultMap.idResultMappings.addAll(resultMap.resultMappings);
-      }
-      if (!constructorArgNames.isEmpty()) {
-        final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
-        if (actualArgNames == null) {
-          throw new BuilderException("Error in result map '" + resultMap.id
-              + "'. Failed to find a constructor in '"
-              + resultMap.getType().getName() + "' by arg names " + constructorArgNames
-              + ". There might be more info in debug log.");
-        }
-        Collections.sort(resultMap.constructorResultMappings, new Comparator<ResultMapping>() {
-          @Override
-          public int compare(ResultMapping o1, ResultMapping o2) {
-            int paramIdx1 = actualArgNames.indexOf(o1.getProperty());
-            int paramIdx2 = actualArgNames.indexOf(o2.getProperty());
-            return paramIdx1 - paramIdx2;
-          }
-        });
-      }
-      // lock down collections
-      resultMap.resultMappings = Collections.unmodifiableList(resultMap.resultMappings);
-      resultMap.idResultMappings = Collections.unmodifiableList(resultMap.idResultMappings);
-      resultMap.constructorResultMappings = Collections.unmodifiableList(resultMap.constructorResultMappings);
-      resultMap.propertyResultMappings = Collections.unmodifiableList(resultMap.propertyResultMappings);
-      resultMap.mappedColumns = Collections.unmodifiableSet(resultMap.mappedColumns);
-      return resultMap;
-    }
+	/**
+	 * 鉴别器
+	 */
+	private Discriminator discriminator;
 
-    private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
-      Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
-      for (Constructor<?> constructor : constructors) {
-        Class<?>[] paramTypes = constructor.getParameterTypes();
-        if (constructorArgNames.size() == paramTypes.length) {
-          List<String> paramNames = getArgNames(constructor);
-          if (constructorArgNames.containsAll(paramNames)
-              && argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
-            return paramNames;
-          }
-        }
-      }
-      return null;
-    }
+	/**
+	 * 是否结果集嵌套
+	 */
+	private boolean hasNestedResultMaps;
 
-    private boolean argTypesMatch(final List<String> constructorArgNames,
-        Class<?>[] paramTypes, List<String> paramNames) {
-      for (int i = 0; i < constructorArgNames.size(); i++) {
-        Class<?> actualType = paramTypes[paramNames.indexOf(constructorArgNames.get(i))];
-        Class<?> specifiedType = resultMap.constructorResultMappings.get(i).getJavaType();
-        if (!actualType.equals(specifiedType)) {
-          if (log.isDebugEnabled()) {
-            log.debug("While building result map '" + resultMap.id
-                + "', found a constructor with arg names " + constructorArgNames
-                + ", but the type of '" + constructorArgNames.get(i)
-                + "' did not match. Specified: [" + specifiedType.getName() + "] Declared: ["
-                + actualType.getName() + "]");
-          }
-          return false;
-        }
-      }
-      return true;
-    }
+	/**
+	 * 是否查询嵌套
+	 */
+	private boolean hasNestedQueries;
 
-    private List<String> getArgNames(Constructor<?> constructor) {
-      List<String> paramNames = new ArrayList<String>();
-      List<String> actualParamNames = null;
-      final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
-      int paramCount = paramAnnotations.length;
-      for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-        String name = null;
-        for (Annotation annotation : paramAnnotations[paramIndex]) {
-          if (annotation instanceof Param) {
-            name = ((Param) annotation).value();
-            break;
-          }
-        }
-        if (name == null && resultMap.configuration.isUseActualParamName() && Jdk.parameterExists) {
-          if (actualParamNames == null) {
-            actualParamNames = ParamNameUtil.getParamNames(constructor);
-          }
-          if (actualParamNames.size() > paramIndex) {
-            name = actualParamNames.get(paramIndex);
-          }
-        }
-        paramNames.add(name != null ? name : "arg" + paramIndex);
-      }
-      return paramNames;
-    }
-  }
+	/**
+	 * 是否自动映射
+	 */
+	private Boolean autoMapping;
 
-  public String getId() {
-    return id;
-  }
+	private ResultMap() {
+	}
 
-  public boolean hasNestedResultMaps() {
-    return hasNestedResultMaps;
-  }
+	public static class Builder {
+		private static final Log log = LogFactory.getLog(Builder.class);
 
-  public boolean hasNestedQueries() {
-    return hasNestedQueries;
-  }
+		private ResultMap resultMap = new ResultMap();
 
-  public Class<?> getType() {
-    return type;
-  }
+		public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings) {
+			this(configuration, id, type, resultMappings, null);
+		}
 
-  public List<ResultMapping> getResultMappings() {
-    return resultMappings;
-  }
+		public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings, Boolean autoMapping) {
+			resultMap.configuration = configuration;
+			resultMap.id = id;
+			resultMap.type = type;
+			resultMap.resultMappings = resultMappings;
+			resultMap.autoMapping = autoMapping;
+		}
 
-  public List<ResultMapping> getConstructorResultMappings() {
-    return constructorResultMappings;
-  }
+		public Builder discriminator(Discriminator discriminator) {
+			resultMap.discriminator = discriminator;
+			return this;
+		}
 
-  public List<ResultMapping> getPropertyResultMappings() {
-    return propertyResultMappings;
-  }
+		public Class<?> type() {
+			return resultMap.type;
+		}
 
-  public List<ResultMapping> getIdResultMappings() {
-    return idResultMappings;
-  }
+		/**
+		 * 核心方法
+		 * @return
+		 */
+		public ResultMap build() {
+			if (resultMap.id == null) {
+				throw new IllegalArgumentException("ResultMaps must have an id");
+			}
+			resultMap.mappedColumns = new HashSet<String>();
+			resultMap.mappedProperties = new HashSet<String>();
+			resultMap.idResultMappings = new ArrayList<ResultMapping>();
+			resultMap.constructorResultMappings = new ArrayList<ResultMapping>();
+			resultMap.propertyResultMappings = new ArrayList<ResultMapping>();
+			final List<String> constructorArgNames = new ArrayList<String>();
+			// 进行循环 调用ResultMapping
+			for (ResultMapping resultMapping : resultMap.resultMappings) {
+				resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
+				resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);
+				final String column = resultMapping.getColumn();
+				if (column != null) {
+					resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
+				} else if (resultMapping.isCompositeResult()) {
+					for (ResultMapping compositeResultMapping : resultMapping.getComposites()) {
+						final String compositeColumn = compositeResultMapping.getColumn();
+						if (compositeColumn != null) {
+							resultMap.mappedColumns.add(compositeColumn.toUpperCase(Locale.ENGLISH));
+						}
+					}
+				}
+				final String property = resultMapping.getProperty();
+				if (property != null) {
+					resultMap.mappedProperties.add(property);
+				}
+				if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
+					resultMap.constructorResultMappings.add(resultMapping);
+					if (resultMapping.getProperty() != null) {
+						constructorArgNames.add(resultMapping.getProperty());
+					}
+				} else {
+					resultMap.propertyResultMappings.add(resultMapping);
+				}
+				if (resultMapping.getFlags().contains(ResultFlag.ID)) {
+					resultMap.idResultMappings.add(resultMapping);
+				}
+			}
+			if (resultMap.idResultMappings.isEmpty()) {
+				resultMap.idResultMappings.addAll(resultMap.resultMappings);
+			}
+			if (!constructorArgNames.isEmpty()) {
+				final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
+				if (actualArgNames == null) {
+					throw new BuilderException("Error in result map '" + resultMap.id
+							+ "'. Failed to find a constructor in '"
+							+ resultMap.getType().getName() + "' by arg names " + constructorArgNames
+							+ ". There might be more info in debug log.");
+				}
+				Collections.sort(resultMap.constructorResultMappings, new Comparator<ResultMapping>() {
+					@Override
+					public int compare(ResultMapping o1, ResultMapping o2) {
+						int paramIdx1 = actualArgNames.indexOf(o1.getProperty());
+						int paramIdx2 = actualArgNames.indexOf(o2.getProperty());
+						return paramIdx1 - paramIdx2;
+					}
+				});
+			}
+			// lock down collections
+			resultMap.resultMappings = Collections.unmodifiableList(resultMap.resultMappings);
+			resultMap.idResultMappings = Collections.unmodifiableList(resultMap.idResultMappings);
+			resultMap.constructorResultMappings = Collections.unmodifiableList(resultMap.constructorResultMappings);
+			resultMap.propertyResultMappings = Collections.unmodifiableList(resultMap.propertyResultMappings);
+			resultMap.mappedColumns = Collections.unmodifiableSet(resultMap.mappedColumns);
+			return resultMap;
+		}
 
-  public Set<String> getMappedColumns() {
-    return mappedColumns;
-  }
+		private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
+			Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
+			for (Constructor<?> constructor : constructors) {
+				Class<?>[] paramTypes = constructor.getParameterTypes();
+				if (constructorArgNames.size() == paramTypes.length) {
+					List<String> paramNames = getArgNames(constructor);
+					if (constructorArgNames.containsAll(paramNames)
+							&& argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
+						return paramNames;
+					}
+				}
+			}
+			return null;
+		}
 
-  public Set<String> getMappedProperties() {
-    return mappedProperties;
-  }
+		private boolean argTypesMatch(final List<String> constructorArgNames,
+		                              Class<?>[] paramTypes, List<String> paramNames) {
+			for (int i = 0; i < constructorArgNames.size(); i++) {
+				Class<?> actualType = paramTypes[paramNames.indexOf(constructorArgNames.get(i))];
+				Class<?> specifiedType = resultMap.constructorResultMappings.get(i).getJavaType();
+				if (!actualType.equals(specifiedType)) {
+					if (log.isDebugEnabled()) {
+						log.debug("While building result map '" + resultMap.id
+								+ "', found a constructor with arg names " + constructorArgNames
+								+ ", but the type of '" + constructorArgNames.get(i)
+								+ "' did not match. Specified: [" + specifiedType.getName() + "] Declared: ["
+								+ actualType.getName() + "]");
+					}
+					return false;
+				}
+			}
+			return true;
+		}
 
-  public Discriminator getDiscriminator() {
-    return discriminator;
-  }
+		private List<String> getArgNames(Constructor<?> constructor) {
+			List<String> paramNames = new ArrayList<String>();
+			List<String> actualParamNames = null;
+			final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+			int paramCount = paramAnnotations.length;
+			for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+				String name = null;
+				for (Annotation annotation : paramAnnotations[paramIndex]) {
+					if (annotation instanceof Param) {
+						name = ((Param) annotation).value();
+						break;
+					}
+				}
+				if (name == null && resultMap.configuration.isUseActualParamName() && Jdk.parameterExists) {
+					if (actualParamNames == null) {
+						actualParamNames = ParamNameUtil.getParamNames(constructor);
+					}
+					if (actualParamNames.size() > paramIndex) {
+						name = actualParamNames.get(paramIndex);
+					}
+				}
+				paramNames.add(name != null ? name : "arg" + paramIndex);
+			}
+			return paramNames;
+		}
+	}
 
-  public void forceNestedResultMaps() {
-    hasNestedResultMaps = true;
-  }
-  
-  public Boolean getAutoMapping() {
-    return autoMapping;
-  }
+	public String getId() {
+		return id;
+	}
+
+	public boolean hasNestedResultMaps() {
+		return hasNestedResultMaps;
+	}
+
+	public boolean hasNestedQueries() {
+		return hasNestedQueries;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public List<ResultMapping> getResultMappings() {
+		return resultMappings;
+	}
+
+	public List<ResultMapping> getConstructorResultMappings() {
+		return constructorResultMappings;
+	}
+
+	public List<ResultMapping> getPropertyResultMappings() {
+		return propertyResultMappings;
+	}
+
+	public List<ResultMapping> getIdResultMappings() {
+		return idResultMappings;
+	}
+
+	public Set<String> getMappedColumns() {
+		return mappedColumns;
+	}
+
+	public Set<String> getMappedProperties() {
+		return mappedProperties;
+	}
+
+	public Discriminator getDiscriminator() {
+		return discriminator;
+	}
+
+	public void forceNestedResultMaps() {
+		hasNestedResultMaps = true;
+	}
+
+	public Boolean getAutoMapping() {
+		return autoMapping;
+	}
 
 }
