@@ -16,5 +16,6 @@
 /**
  * Base package. Contains the SqlSession.
  * 回话包,连接就有回话,回话管理的操作类
+ * 会话把,本质就是 通过配置 什么事物 怎么执行 去执行
  */
 package org.apache.ibatis.session;

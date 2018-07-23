@@ -22,6 +22,8 @@ import org.apache.ibatis.executor.ErrorContext;
  * 又是工厂模式
  * 这个工厂是干什么的
  * 通过工厂模式来创建不同的PersistenceException 只是message不同而已
+ *
+ * 这个工厂用来包装异常,使得异常更加符合场景
  */
 public class ExceptionFactory {
 
