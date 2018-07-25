@@ -119,7 +119,7 @@ public final class MappedStatement {
 	private KeyGenerator keyGenerator;
 
 	/**
-	 * Properties 数组
+	 * 我们对象中的 key 对应的属性          ->     数据库中的 key 对应的列
 	 */
 	private String[] keyProperties;
 

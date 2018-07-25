@@ -56,6 +56,7 @@ public class MetaObject {
 	private final ReflectorFactory reflectorFactory;
 
 	// 构造器私有化
+
 	private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
 		this.originalObject = object;
 		this.objectFactory = objectFactory;
@@ -77,6 +78,7 @@ public class MetaObject {
 	}
 
 	//通过forObject来进行操作
+
 	public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
 		if (object == null) {
 			// 这个操作兜了一圈又回来了 不过能保证单例
@@ -133,6 +135,7 @@ public class MetaObject {
 	// 工具不就使用上了,“a.b” 拿到最终太对象的Object包装
 	// 都是为了拿到包装对象 关于那个词法操作的
 	// 这么做的目的我猜测,封装完毕后,就可以构造出来对象了a.b.c 那不就是 A 一个属性 B 中的一个属性
+
 	public Object getValue(String name) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
@@ -149,6 +152,7 @@ public class MetaObject {
 	}
 
 	// 针对词法操作set 包装类型的
+
 	public void setValue(String name, Object value) {
 		PropertyTokenizer prop = new PropertyTokenizer(name);
 		if (prop.hasNext()) {
