@@ -15,5 +15,7 @@
  */
 /**
  * Contains the result handlers.
+ * 包含结果处理
+ * 通过代码可以了解到  其实就是从结果集上下文中 获取结果对象 放到封装的结果集中
  */
 package org.apache.ibatis.executor.result;

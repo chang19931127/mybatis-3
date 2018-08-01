@@ -23,7 +23,7 @@ package org.apache.ibatis.session;
  * 也就是我们常说的 start limit
  * 也就是mysql总   limit 100,10
  *
- * 但是mysql的 分页是逻辑分页 例如 100,10   起始取出了110条数据 只给你了最后10条
+ * 但是MyBatis的 分页是逻辑分页 例如 100,10   起始取出了110条数据 只给你了最后10条
  *
  */
 public class RowBounds {
