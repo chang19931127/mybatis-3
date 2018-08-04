@@ -17,6 +17,7 @@ package org.apache.ibatis.executor.loader;
 
 /**
  * @author Eduardo Macarron
+ * 通过 修改字节码来进行动态代理
  */
 @Deprecated
 public final class JavassistProxyFactory extends org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory {

@@ -17,6 +17,7 @@ package org.apache.ibatis.executor.loader;
 
 /**
  * @author Clinton Begin
+ * 通过 cglib 来进行代理
  */
 @Deprecated
 public class CglibProxyFactory extends org.apache.ibatis.executor.loader.cglib.CglibProxyFactory {
