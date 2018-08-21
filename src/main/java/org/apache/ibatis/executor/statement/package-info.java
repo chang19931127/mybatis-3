@@ -15,5 +15,10 @@
  */
 /**
  * Statement handlers.
+ * 语句处理类 针对语句需要做一些处理
+ * 主要就三种
+ * CallableStatementHandler
+ * PreparedStatementHandler
+ * SimpleStatmentHandler
  */
 package org.apache.ibatis.executor.statement;
