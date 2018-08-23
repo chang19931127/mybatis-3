@@ -16,5 +16,7 @@
 /**
  * Contains the statement executors.
  * 执行包,放一些执行操作的类
+ * 其实主要还是StatementHandler 来进行执行的
+ * Executor主要还是在门面操作一些东西
  */
 package org.apache.ibatis.executor;
