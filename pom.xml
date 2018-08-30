@@ -21,6 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- maven的父子结构,子结构会继承父结构的内容,例如一些插件-->
+    <!-- 里面有很多的插件可以学习一波-->
     <parent>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-parent</artifactId>
@@ -29,6 +30,7 @@
     </parent>
 
     <!-- 该maven工程的三围,以及打包类型 -->
+    <groupId>org.mybatis</groupId>
     <artifactId>mybatis</artifactId>
     <version>3.5.0-SNAPSHOT</version>
     <packaging>jar</packaging>
