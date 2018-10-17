@@ -37,6 +37,7 @@ import org.apache.ibatis.logging.LogFactory;
  *
  * @author Clinton Begin
  * 一个简单的线程安全的数据库连接池
+ * 可以了解一下池化技术
  */
 public class PooledDataSource implements DataSource {
 

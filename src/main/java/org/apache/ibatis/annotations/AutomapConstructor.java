@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * The marker annotation that indicate a constructor for automatic mapping.
- *
+ * 这个注解指示 mybatis 自动映射的时候 反射使用的构造器
  * @author Tim Chen
  * @since 3.4.3
  */

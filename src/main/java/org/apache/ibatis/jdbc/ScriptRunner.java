@@ -62,7 +62,7 @@ public class ScriptRunner {
 	 */
 	private boolean autoCommit;
 	/**
-	 * 是否发送完整的SQL基本
+	 * 是否整体 发送到数据库服务器 然后执行
 	 * 发现没   boolean  不用is 来定义变量
 	 */
 	private boolean sendFullScript;
@@ -140,10 +140,10 @@ public class ScriptRunner {
 
 		try {
 			if (sendFullScript) {
-				// 执行脚本 存储过程
+				// 一次全部执行
 				executeFullScript(reader);
 			} else {
-				// 执行语句
+				// 根据行去执行
 				executeLineByLine(reader);
 			}
 		} finally {
