@@ -24,6 +24,7 @@ public class AnnotatedSubject {
   private final int height;
   private final int weight;
 
+//  @AutomapConstructor 交换位置就会使用不一样的构造器
   public AnnotatedSubject(final int id, final String name, final int age, final int height, final int weight) {
     this.id = id;
     this.name = name;
@@ -32,6 +33,7 @@ public class AnnotatedSubject {
     this.weight = weight;
   }
 
+  // 如果这个注解移除了 就会使用错误的构造器 导致序列化失败
   @AutomapConstructor
   public AnnotatedSubject(final int id, final String name, final int age, final Integer height, final Integer weight) {
     this.id = id;
